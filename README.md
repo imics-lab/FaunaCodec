@@ -41,7 +41,7 @@ source .venv/bin/activate
 ```bash
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 pip install -e ".[metrics]"
-pip install --no-build-isolation ./third_party/dcvc/src/cpp  # the rANS entropy coder
+pip install ./third_party/dcvc/src/cpp  # the rANS entropy coder
 ```
 
 Then fetch the weights. They are grouped, so an edge device need not download the server-side models:
