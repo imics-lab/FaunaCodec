@@ -1,0 +1,122 @@
+# Edge-side compression: detect the subject, select frames, encode two streams.
+
+roi_detection:
+  enable: true
+  paths:
+    animal_model_path: "models/MDV6-yolov9-c.pt"
+    animal_model_path_onnx: "models/MDV6-yolov9-c.onnx"
+  runtime:
+    device: "cuda:0"
+    # Detector backend. ONNX Runtime is usually faster on the edge device, but it is
+    # an optional dependency (pip install -e ".[onnx]"); with prefer_onnx alone the
+    # code falls back to the PyTorch weights when it is unavailable, while
+    # prefer_onnx_strict turns that fallback into an error. Kept explicit so runs
+    # stay comparable.
+    prefer_onnx: false
+    prefer_onnx_strict: false
+    # Ultralytics inference precision (16/fp16 or 32/fp32). "half" is deprecated.
+    quantize: 16
+    # Fraction of the input resolution the detector sees. Keep this at 1.0 for the
+    # 640x360 delivery resolution the pipeline uses: at 0.5 the subject is only a
+    # few dozen pixels across and MegaDetector misses it entirely, which silently
+    # empties the ROI stream. Lower it only for 1080p or larger source footage.
+    processing_scale: 1.0
+    imgsz: 640
+    conf: 0.25
+    iou_nms: 0.50
+    target_class_ids: [0]        # MegaDetector class 0 is "animal"
+    start_frame: 0
+    end_frame: -1
+    keyframe_interval: 15        # detect every N frames; KLT tracks the gaps
+    model_merge_iou: 0.30
+    bbox_pad_frac: 0.10
+    bbox_pad_px: 8
+  tracking:
+    enable_propagation: true
+    match_iou: 0.30
+    min_hits: 2
+    max_det_gap: 90
+    vel_smooth: 0.70
+    klt_max_points: 80
+    klt_min_points: 10
+
+frame_selection:
+  params:
+    roi:
+      halo_frac: 0.20
+      fixed_size: 160
+      blur_ksize: 5
+      gray: true
+    bbox_smoothing:
+      enable: true
+      ema_alpha: 0.60
+    motion:
+      state_source: "hybrid"     # "pixel", "bbox", or "hybrid"
+      t_low: 0.90
+      t_high: 1.90
+      bbox_t_low_px: 0.50
+      bbox_t_high_px: 1.00
+      enter_motion_frames: 2
+      enter_still_frames: 4
+  # The two streams keep frames on independent schedules: the subject is sampled
+  # densely while it moves, the background far more sparsely throughout.
+  dual_timeline:
+    enable: true
+    roi_motion_interval: 2
+    roi_still_interval: 3
+    bg_interval: 6
+    bg_idle_interval: 10
+
+compression:
+  # dcvc (learned) or h264 / hevc / av1 (ffmpeg). The dual-stream split is the same
+  # either way; only the backend and the quality keys below differ.
+  codec: "dcvc"
+
+  # Stream ROI and background frames into the encoder instead of buffering every kept
+  # frame at full resolution. Keeps peak RAM low enough for a Jetson-class device.
+  low_memory: true
+
+  roi:
+    min_conf: 0.0
+    dilate_px: 0
+
+  quality:
+    # DCVC: quantization parameter in 0..63, higher is better quality.
+    roi_qp_i: 63
+    roi_qp_p: 63
+    bg_qp_i: 25
+    bg_qp_p: 25
+    # ffmpeg backends: CRF, lower is better quality. These codec-specific values
+    # were calibrated to roughly 30 dB overall and 31.5 dB subject PSNR on bird1
+    # at 640x360; recalibrate them before comparing a substantially different corpus.
+    ffmpeg:
+      h264:
+        roi_crf: 19
+        bg_crf: 30
+      hevc:
+        roi_crf: 22
+        bg_crf: 32
+      av1:
+        roi_crf: 32
+        bg_crf: 62
+
+  dcvc:
+    repo_dir: "third_party/dcvc"
+    model_i: "models/cvpr2025_image.pth.tar"
+    model_p: "models/cvpr2025_video.pth.tar"
+    device: "cuda"
+    use_cuda: true
+    cuda_idx: 0
+    reset_interval: 32
+    intra_period: -1
+    force_zero_thres: null
+
+  ffmpeg:
+    preset:
+      h264: "medium"
+      hevc: "medium"
+      av1: "5"
+
+output:
+  write_outputs: true
+  out_dir: "outputs/compression"

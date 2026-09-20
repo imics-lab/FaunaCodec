@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.mp4 binary
+*.pt binary
+*.pth binary
+*.onnx binary

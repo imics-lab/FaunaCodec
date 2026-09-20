@@ -1,0 +1,41 @@
+# Server-side reconstruction: decode both streams, fill in the dropped background
+# frames, composite the subject back over the background.
+
+decompression:
+  codec: "mp4v"                    # FourCC for the reconstructed video
+  mask_source: "roi_detection"     # or "frame_drop_roi_box" to use the selector's boxes
+
+  # The detection boxes jitter frame to frame, which shows up as a crawling seam around
+  # the composited subject. These smooth the mask over time: a higher alpha holds the
+  # previous mask longer, so the subject is damped more while still and less while moving.
+  roi_temporal_stabilize: true
+  roi_temporal_alpha_still: 0.70
+  roi_temporal_alpha_motion: 0.92
+  roi_blend_edge_px: 2             # feather width of the composite seam
+  roi_temporal_mask_dilate: 1
+  roi_temporal_overlap_only: true  # only smooth where consecutive masks overlap
+
+  # These override the paths recorded in the archive, for when the decoding machine
+  # stores its weights somewhere else. Relative paths resolve against the repository.
+  dcvc:
+    repo_dir: "third_party/dcvc"
+    model_i: "models/cvpr2025_image.pth.tar"
+    model_p: "models/cvpr2025_video.pth.tar"
+    use_cuda: true
+    cuda_idx: 0
+    force_zero_thres: null
+
+  # AMT reconstructs the background frames the encoder dropped. Disable it (or pass
+  # --no-interpolate) to hold each dropped frame instead: faster, no AMT dependency,
+  # visibly less smooth. See THIRD_PARTY_LICENSES.md; AMT is CC BY-NC 4.0.
+  interpolate:
+    enable: true
+    model: "amt-s"                 # "amt-s" or "amt-l" (slower, better)
+    weights_path: "models/amt-s.pth"
+    repo_dir: "third_party/amt"
+    device: "cuda"
+    fp16: true
+    pad_to: 16                     # AMT requires dimensions divisible by this
+    batch_size: 8                  # reduce if the GPU runs out of memory
+    crop_margin: 8
+    max_crop_side: 768

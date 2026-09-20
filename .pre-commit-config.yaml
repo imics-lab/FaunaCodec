@@ -1,0 +1,25 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^third_party/
+      - id: end-of-file-fixer
+        exclude: ^third_party/
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=5000"]
+        # The demo clip and the notebook's embedded figures are committed on purpose.
+        exclude: ^(data/bird1\.mp4|notebooks/.*\.ipynb)$
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+
+  # Lint only. `ruff format` is deliberately not wired in here: the codebase predates
+  # it and enabling it would rewrite most files on the next commit. Run
+  # `ruff format .` once, deliberately, if you want that.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: ruff
+        args: ["--fix"]

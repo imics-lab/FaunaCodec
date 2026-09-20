@@ -1,0 +1,23 @@
+# Chains the stage configs below. Each section names a file; keys added alongside
+# `config:` override that file's top-level keys.
+
+input:
+  # Resize before compression. "WxH", or empty to keep the source resolution.
+  # Preserve the bundled 16:9 video's aspect ratio at a lower delivery resolution.
+  resolution: "640x360"
+
+compression:
+  config: "configs/compression.yaml"
+
+decompression:
+  config: "configs/decompression.yaml"
+
+restoration:
+  config: "configs/restoration.yaml"
+
+upscaling:
+  config: "configs/upscaling.yaml"
+
+output:
+  out_dir: "outputs/pipeline"
+  save_intermediate: false     # write the output of every stage, not just the last

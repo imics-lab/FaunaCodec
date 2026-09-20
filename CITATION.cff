@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "FaunaCodec: ROI-Aware Video Compression and Reconstruction for Wildlife Monitoring"
+authors:
+  - family-names: Sakevych
+    given-names: Mykhailo
+    affiliation: Texas State University
+    email: ukb12@txstate.edu
+  - family-names: Mathew
+    given-names: Felix
+    affiliation: Texas State University
+    email: mya34@txstate.edu
+  - family-names: Metsis
+    given-names: Vangelis
+    affiliation: Texas State University
+    email: vmetsis@txstate.edu
+date-released: 2026-09-19
+url: "https://github.com/imics-lab/FaunaCodec"
+license: Apache-2.0
+version: "1.0.0"
+repository-code: "https://github.com/imics-lab/FaunaCodec"
+preferred-citation:
+  type: conference-paper
+  title: "FaunaCodec: ROI-Aware Video Compression and Reconstruction for Wildlife Monitoring"
+  authors:
+    - family-names: Sakevych
+      given-names: Mykhailo
+    - family-names: Mathew
+      given-names: Felix
+    - family-names: Metsis
+      given-names: Vangelis
+  collection-title: "Proceedings of the IEEE International Conference on Tools with Artificial Intelligence (ICTAI)"
+  year: 2026

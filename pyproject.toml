@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "faunacodec"
+version = "1.0.0"
+description = "ROI-aware dual-stream video compression for bandwidth-constrained wildlife camera traps"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Mykhailo Sakevych" },
+    { name = "Felix Mathew" },
+    { name = "Vangelis Metsis" },
+]
+keywords = ["video-compression", "neural-codec", "camera-trap", "wildlife", "edge-computing"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Install PyTorch first with the wheel matching your CUDA version; see setup.sh.
+dependencies = [
+    "torch>=2.2.0",
+    "torchvision>=0.17.0",
+    "ultralytics>=8.3.0",
+    "opencv-python-headless>=4.9.0",
+    "Pillow>=10.0.0",
+    "numpy>=1.26.0",
+    "scipy>=1.12.0",
+    "PyYAML>=6.0.1",
+    "omegaconf>=2.3.0",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+# The diffusion upscalers are pinned: S3Diff and OSEDiff both break on newer
+# diffusers/peft releases, and the vendored OSEDiff carries patches for these versions.
+upscale = [
+    "diffusers==0.25.1",
+    "transformers==4.35.2",
+    "peft==0.10.0",
+    "huggingface_hub==0.22.2",
+    "accelerate",
+    "einops",
+    "timm",
+    "open-clip-torch",
+    "dominate",
+]
+metrics = [
+    "scikit-image>=0.22.0",
+    "pytorch-msssim>=1.0.0",
+    "lpips>=0.1.4",
+]
+# ONNX Runtime detection, usually faster on the edge device. Enable with
+# roi_detection.runtime.prefer_onnx. Install onnxruntime-gpu instead for CUDA.
+onnx = [
+    "onnxruntime>=1.17",
+]
+train = [
+    "lpips>=0.1.4",
+    "imageio>=2.34.0",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5.0",
+    "pre-commit>=3.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/imics-lab/FaunaCodec"
+Repository = "https://github.com/imics-lab/FaunaCodec"
+
+[project.scripts]
+faunacodec-compress = "faunacodec.cli.compress:main"
+faunacodec-decompress = "faunacodec.cli.decompress:main"
+faunacodec-pipeline = "faunacodec.cli.pipeline:main"
+faunacodec-restore = "faunacodec.cli.restore:main"
+faunacodec-upscale = "faunacodec.cli.upscale:main"
+
+[tool.setuptools.packages.find]
+include = ["faunacodec*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+# Vendored upstream code is kept byte-for-byte so it can be diffed against its source.
+extend-exclude = ["third_party"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = [
+    "E501",  # line length is handled by the formatter
+    "B008",  # argparse and torch APIs legitimately call functions in defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
+# A notebook introduces imports where the narrative needs them, and its zips pair
+# frames with titles that are written to match.
+"notebooks/*" = ["E402", "I001", "B905"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]

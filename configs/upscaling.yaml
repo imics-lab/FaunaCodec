@@ -1,0 +1,67 @@
+# Upscaling stage. One backend runs per invocation; pick it with `backend` here or
+# with --backend / --upscaler on the command line.
+#
+# bicubic   Lanczos resampling. Adds no detail; the fidelity reference.
+# s3diff    Degradation-guided one-step diffusion. Weights fetched on first use.
+# osediff   Distilled one-step diffusion. Sharpest result within a practical time budget.
+# pid       Pixel-space diffusion. Densest synthesized texture; needs its own checkpoint.
+# wan       Wan2.1 image-to-video. Temporal window, roughly a day per clip.
+# cogvideo  CogVideoX video-to-video. Temporal window, roughly a day per clip.
+#
+# Anything a generative backend adds is plausible, not measured. Treat upscaled output
+# as a perceptual aid, never as photometric evidence.
+
+backend: bicubic
+scale: 2
+device: "cuda:0"
+
+bicubic: {}
+
+s3diff:
+  repo_dir: "S3Diff"           # cloned here on first use
+  weights_dir: "weights"       # de_net.pth and s3diff.pkl downloaded here on first use
+  half: true
+  color_fix: "wavelet"
+  seed: 42
+
+osediff:
+  osediff_repo: "third_party/osediff"
+  mixed_precision: "fp16"
+  color_fix: "adain"
+  seed: 42
+  vae_encoder_tiled_size: 1024
+  vae_decoder_tiled_size: 224
+  latent_tiled_size: 96
+  latent_tiled_overlap: 32
+
+pid:
+  # pid_repo: "third_party/PiD"   # omit if PiD is pip-installed
+  checkpoint_path: ""             # required: PiD_res2k_sr4x_official_flux2_distill_4step
+  backbone: "flux2"
+  pid_ckpt_type: "2k"
+  load_ema_to_reg: true
+  pid_steps: 4                    # 4 is standard for the distilled checkpoints
+  cfg_scale: 1.0                  # 1.0 for distilled models
+  shift: 1.0
+  color_fix: "adain"
+  seed: 42
+
+wan:
+  chunk_frames: 17                # must be odd
+  overlap_frames: 4
+  num_steps: 20
+  guidance_scale: 5.0
+  cpu_offload: true
+  seed: 42
+
+cogvideo:
+  strength: 0.55
+  chunk_frames: 49
+  overlap_frames: 8
+  num_steps: 50
+  guidance_scale: 6.0
+  cpu_offload: true
+  seed: 42
+
+output:
+  out_dir: "outputs/upscaling"

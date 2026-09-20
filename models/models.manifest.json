@@ -1,0 +1,149 @@
+{
+  "_comment": "Model and data manifest. Run scripts/download_models.py to fetch and verify. Files live as release assets under release_tag in the repository named by repo; each url below is release_base + file. Set FAUNACODEC_ASSET_BASE to download from somewhere else, e.g. a local mirror.",
+  "repo": "imics-lab/FaunaCodec",
+  "release_tag": "v1.0.0-models",
+  "release_base": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/",
+  "models": [
+    {
+      "name": "MegaDetector V6 (MDV6-yolov9-c, PyTorch)",
+      "path": "models/MDV6-yolov9-c.pt",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/MDV6-yolov9-c.pt",
+      "sha256": "daa6cd5d2e3fd52754889cd9c702f73c0349a8388318952e6eaf83e0667543e4",
+      "required": true,
+      "notes": "Default detection backend (roi_detection.paths.animal_model_path).",
+      "groups": [
+        "compress"
+      ]
+    },
+    {
+      "name": "MegaDetector V6 (MDV6-yolov9-c, ONNX)",
+      "path": "models/MDV6-yolov9-c.onnx",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/MDV6-yolov9-c.onnx",
+      "sha256": "d31c708763d93e2680131cb915169f6b16ef009e50bc31179872dfcdc5d5ddeb",
+      "required": true,
+      "notes": "ONNX runtime path for detection (roi_detection.paths.animal_model_path_onnx).",
+      "groups": [
+        "compress"
+      ]
+    },
+    {
+      "name": "DCVC I-frame (IntraNoAR, CVPR-2025)",
+      "path": "models/cvpr2025_image.pth.tar",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/cvpr2025_image.pth.tar",
+      "sha256": "555eff5f4026774f477bebdcbb3b52548e0da230803959dcebcea4d732a90dd9",
+      "required": true,
+      "notes": "Required by decompression.dcvc.model_i.",
+      "groups": [
+        "compress",
+        "decompress"
+      ]
+    },
+    {
+      "name": "DCVC P-frame (DMC, CVPR-2025)",
+      "path": "models/cvpr2025_video.pth.tar",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/cvpr2025_video.pth.tar",
+      "sha256": "b12e7faf4ddb6126d8e138a627ed6a349b8e1052d3ed9e343e1ba266466675d6",
+      "required": true,
+      "notes": "Required by decompression.dcvc.model_p.",
+      "groups": [
+        "compress",
+        "decompress"
+      ]
+    },
+    {
+      "name": "AMT-S (frame interpolation)",
+      "path": "models/amt-s.pth",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/amt-s.pth",
+      "sha256": "b0e5999aa804efb851936b6fe949281725e2f4820876fecc0103874ce41ed85d",
+      "required": true,
+      "notes": "Default interpolation model (decompression.interpolate.weights_path).",
+      "groups": [
+        "decompress"
+      ]
+    },
+    {
+      "name": "AMT-L (frame interpolation, higher quality)",
+      "path": "models/amt-l.pth",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/amt-l.pth",
+      "sha256": "8e259cf07c3adfd53555bbb0a73221d24f4a08735a40f8375a6b6ac10fac8cf6",
+      "required": false,
+      "notes": "Optional higher-quality interpolation backend; set interpolate.model to amt-l to use it.",
+      "groups": [
+        "decompress"
+      ]
+    },
+    {
+      "name": "DCVC int16 weight bundle",
+      "path": "models/int16_bundle_v1.0.0.pt",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/int16_bundle_v1.0.0.pt",
+      "sha256": "c1fc2341d3faf28f16b8e77c0869aecddade674aa0b43be2b64c516f49a8554f",
+      "required": false,
+      "notes": "Deterministic int16 DCVC runtime bundle; required only for third_party/dcvc_int16/ (see its README).",
+      "groups": [
+        "int16"
+      ]
+    },
+    {
+      "name": "Restoration UNet, L1 (best)",
+      "path": "checkpoints/restore_l1/best.pt",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/restore_l1-best.pt",
+      "sha256": "2a3d4d1acec178c7e15da2655043d15a1d381a037f88aa2a03e6024745481143",
+      "required": true,
+      "notes": "Required by restoration.checkpoint (configs/restoration.yaml).",
+      "groups": [
+        "restore"
+      ]
+    },
+    {
+      "name": "Restoration UNet ablation, T1",
+      "path": "checkpoints/restore_T1/best.pt",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/restore_T1-best.pt",
+      "sha256": "a919f39216ae61a9c64a4ada896d5cb59d8780d7eb454d6f423038e985d48ffd",
+      "required": false,
+      "notes": "Used by configs/restoration_T1.yaml for the T1 ablation.",
+      "groups": [
+        "restore"
+      ]
+    },
+    {
+      "name": "Restoration UNet ablation, T5",
+      "path": "checkpoints/restore_T5/best.pt",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/restore_T5-best.pt",
+      "sha256": "db1407fce8b9bdca53e7eeaadd7b8b880db2a1062c7f878e4766d7aa736c0125",
+      "required": false,
+      "notes": "Used by configs/restoration_T5.yaml for the T5 ablation.",
+      "groups": [
+        "restore"
+      ]
+    },
+    {
+      "name": "Evaluation corpus (20 clips)",
+      "path": "corpus.zip",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/corpus.zip",
+      "sha256": "ee20255356f88933691bc05d949b16b6008c85130b8aaeaf2454c6cd6c41a80d",
+      "required": false,
+      "notes": "20-clip evaluation corpus used in the paper. Extract with: python -m zipfile -e corpus.zip corpus/",
+      "groups": [
+        "data"
+      ]
+    },
+    {
+      "name": "Sample clip (cow15)",
+      "path": "dataset/cow15.mp4",
+      "url": "https://github.com/imics-lab/FaunaCodec/releases/download/v1.0.0-models/cow15.mp4",
+      "sha256": "d02ca9239bbc536ad4ffd539db4c32d4b87b1dfe77675285a209fc57fa35de23",
+      "required": true,
+      "notes": "The README quick start runs the pipeline directly on this file.",
+      "groups": [
+        "data"
+      ]
+    }
+  ],
+  "_groups": {
+    "compress": "Edge side: subject detection and DCVC encoding.",
+    "decompress": "Server side: DCVC decoding and AMT frame interpolation.",
+    "restore": "Optional RestoreUNet artifact-removal checkpoints.",
+    "int16": "Deterministic int16 DCVC runtime bundle (see third_party/dcvc_int16/).",
+    "data": "Sample clip and the 20-clip evaluation corpus."
+  }
+}

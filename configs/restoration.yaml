@@ -1,0 +1,34 @@
+# RestoreUNet: a temporal-attention diffusion U-Net that removes this codec's
+# artifacts. Deliberately conservative -- it starts denoising from a low timestep so it
+# stays faithful to its input instead of inventing detail. Synthesizing detail is the
+# upscaling stage's job, and it is kept separate for exactly that reason.
+#
+# restoration_T1.yaml and restoration_T5.yaml are the same model with a 1- and 5-frame
+# temporal window; each needs its own checkpoint.
+
+device: "cuda:0"
+
+model:
+  checkpoint: "checkpoints/restore_l1/best.pt"
+  base_channels: 64
+  encoder_channels: [128, 256, 512]
+  num_res_blocks: 4
+  timesteps: 1000
+  temporal_window: 3           # frames attended simultaneously (must be odd)
+  n_heads: 4                   # temporal attention heads
+
+inference:
+  ddim_steps: 3                # denoising steps
+  t_start: 50                  # img2img start timestep; lower = more faithful to input, less hallucination
+  tile_size: 256               # process as 256×256 tiles matching training patch size
+  tile_overlap: 32             # overlap between tiles for Gaussian blending
+  color_fix: false             # match the tone of the input; off during training
+  batch_size: 1                # window batches processed at once
+  tile_batch_size: 4           # tiles per DDIM call; reduce if OOM (try 2 or 1)
+  roi_restore_strength: 1.0    # 0=keep decompressed ROI, 1=fully restore ROI (BG always 1.0)
+
+training:
+  vgg_weight: 0.0              # 0 = L1 only (faithful artifact removal); >0 adds VGG perceptual loss (encourages hallucination)
+
+output:
+  out_dir: "outputs/restoration"
