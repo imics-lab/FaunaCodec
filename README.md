@@ -2,6 +2,9 @@
 
 ROI-aware dual-stream video compression for bandwidth-constrained wildlife camera traps.
 
+![FaunaCodec pipeline: an edge device detects the animal, splits the frame into a high-quality ROI stream and a low-quality background stream, and the server decodes, composites, and upscales them back into a full-rate video.](docs/images/pipeline_overview.png)
+
+
 Animals occupy a small fraction of a camera-trap frame. FaunaCodec detects the subject, then encodes the subject region and the background as **two independent streams**: the subject at high quality on a dense frame schedule, the background at low quality on a sparse one. The server decodes both, interpolates the frames the background stream dropped, and composites them back into a full-rate video.
 
 Because the split lives outside the encoder, the same architecture runs on a learned neural codec (DCVC) and on H.264, HEVC, and AV1 through ffmpeg — one config key apart.
@@ -22,8 +25,6 @@ raw video
         │                                       2x upscale                    (optional)
         └─────────── archive.zip ──────────▶    reconstructed video
 ```
-
-![FaunaCodec pipeline: an edge device detects the animal, splits the frame into a high-quality ROI stream and a low-quality background stream, and the server decodes, composites, and upscales them back into a full-rate video.](docs/images/pipeline_overview.png)
 
 ---
 
