@@ -49,7 +49,7 @@ else
     fi
     case "$CUDA_VERSION" in
         cpu)       TORCH_INDEX="https://download.pytorch.org/whl/cpu" ;;
-        12.6|12.7|12.8|13.*) TORCH_INDEX="https://download.pytorch.org/whl/cu126" ;;
+        12.6|12.7|12.8|12.9|13.*) TORCH_INDEX="https://download.pytorch.org/whl/cu126" ;;
         12.4|12.5) TORCH_INDEX="https://download.pytorch.org/whl/cu124" ;;
         *)         TORCH_INDEX="https://download.pytorch.org/whl/cu121" ;;
     esac

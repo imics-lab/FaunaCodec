@@ -23,11 +23,15 @@ raw video
         └─────────── archive.zip ──────────▶    reconstructed video
 ```
 
+![FaunaCodec pipeline: an edge device detects the animal, splits the frame into a high-quality ROI stream and a low-quality background stream, and the server decodes, composites, and upscales them back into a full-rate video.](docs/images/pipeline_overview.png)
+
 ---
 
 ## Install
 
-Requires Python 3.10+, an NVIDIA GPU with CUDA, and ffmpeg on the `PATH` (`sudo apt install ffmpeg` on Debian/Ubuntu, `brew install ffmpeg` on macOS).
+Requires Python 3.10+, an NVIDIA GPU with CUDA, and ffmpeg on the `PATH` (`sudo apt install ffmpeg` on Debian/Ubuntu, `brew install ffmpeg` on macOS, `winget install Gyan.FFmpeg` on Windows).
+
+### Linux / macOS
 
 ```bash
 git clone https://github.com/imics-lab/FaunaCodec
@@ -43,6 +47,33 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 pip install -e ".[metrics]"
 pip install ./third_party/dcvc/src/cpp  # the rANS entropy coder
 ```
+
+### Windows
+
+```powershell
+git clone https://github.com/imics-lab/FaunaCodec
+cd FaunaCodec
+.\setup.ps1                    # creates .\.venv, installs PyTorch, builds DCVC's entropy coder
+.\.venv\Scripts\Activate.ps1
+```
+
+`setup.ps1` mirrors `setup.sh`: `-Cuda`, `-Venv`, `-Python`, `-NoVenv`, `-Extras` take the place of the bash flags. The one extra requirement is a Windows toolchain to build DCVC's C++ entropy coder, since the vendored build (`third_party/dcvc/src/cpp/setup.py`) compiles with MSVC, not MinGW/gcc. You don't need the full Visual Studio IDE or the "Desktop development with C++" workload (~7 GB) — just the compiler and a Windows SDK (~2-3 GB):
+
+```powershell
+.\setup.ps1 -InstallCompiler   # installs the missing MSVC toolset + SDK, then continues
+```
+
+This still triggers one UAC prompt, since installing a compiler needs admin rights no matter who kicks it off, but you don't have to open an elevated shell or hand-copy component IDs. It picks the right path automatically: `winget install` for a from-scratch machine, or `setup.exe modify --installPath` when a Visual Studio / Build Tools instance is already present — `winget install` refuses outright ("Visual Studio Build Tools 2022 is already installed") if any instance exists, even an incomplete one, since its `install` verb only handles fresh installs. If you already have an instance (check with `winget list --id Microsoft.VisualStudio.2022.BuildTools`), do it yourself the same way, from an elevated PowerShell:
+
+```powershell
+& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe" modify `
+  --installPath "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools" `
+  --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+  --add Microsoft.VisualStudio.Component.Windows11SDK.22621 `
+  --passive --norestart
+```
+
+`setup.ps1` detects a missing compiler up front and stops with these options rather than failing deep inside the build. Everything else — venv creation, PyTorch/CUDA wheel selection, the ffmpeg codec backends — runs natively on Windows with no compiler needed.
 
 Then fetch the weights. They are grouped, so an edge device need not download the server-side models:
 
